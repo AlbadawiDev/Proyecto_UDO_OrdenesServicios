@@ -47,13 +47,8 @@ class EquipoDAO(BaseDAO):
             query += f" OFFSET %s"
             params.append(offset)
             
-        try:
-            from app.dao.conexion import db
-            cursor = db.get_cursor()
-            cursor.execute(query, params)
-            return [self.mapear_a_objeto(fila) for fila in cursor.fetchall()]
-        except Exception as e:
-            raise
+        filas = self._query_rows(query, params)
+        return [self.mapear_a_objeto(fila) for fila in filas]
     
     def buscar_por_numero_serie(self, numero_serie):
         resultados = self.buscar_por_criterio('numero_serie', numero_serie)
@@ -70,13 +65,8 @@ class EquipoDAO(BaseDAO):
             LEFT JOIN cliente c ON e.id_cliente = c.id_cliente
             WHERE e.tipo ILIKE %s AND e.activo = TRUE
         """
-        try:
-            from app.dao.conexion import db
-            cursor = db.get_cursor()
-            cursor.execute(query, (f'%{tipo}%',))
-            return [self.mapear_a_objeto(fila) for fila in cursor.fetchall()]
-        except Exception as e:
-            raise
+        filas = self._query_rows(query, (f'%{tipo}%',))
+        return [self.mapear_a_objeto(fila) for fila in filas]
     
     def validar_numero_serie_unico(self, numero_serie, excluir_id=None):
         if not numero_serie:
@@ -86,12 +76,7 @@ class EquipoDAO(BaseDAO):
         if excluir_id:
             query += " AND id_equipo != %s"
             params.append(excluir_id)
-        try:
-            from app.dao.conexion import db
-            cursor = db.get_cursor()
-            cursor.execute(query, params)
-            return cursor.fetchone() is None
-        except Exception as e:
-            raise
+        fila = self._query_row(query, params)
+        return fila is None
 
 equipo_dao = EquipoDAO()

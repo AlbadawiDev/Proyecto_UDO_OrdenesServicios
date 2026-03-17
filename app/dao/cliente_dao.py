@@ -40,13 +40,8 @@ class ClienteDAO(BaseDAO):
             SELECT * FROM cliente 
             WHERE (nombre ILIKE %s OR apellido ILIKE %s) AND activo = TRUE
         """
-        try:
-            from app.dao.conexion import db
-            cursor = db.get_cursor()
-            cursor.execute(query, (f'%{nombre}%', f'%{nombre}%'))
-            return [self.mapear_a_objeto(fila) for fila in cursor.fetchall()]
-        except Exception as e:
-            raise
+        filas = self._query_rows(query, (f'%{nombre}%', f'%{nombre}%'))
+        return [self.mapear_a_objeto(fila) for fila in filas]
     
     def validar_cedula_unica(self, cedula, excluir_id=None):
         query = "SELECT id_cliente FROM cliente WHERE cedula = %s"
@@ -54,12 +49,7 @@ class ClienteDAO(BaseDAO):
         if excluir_id:
             query += " AND id_cliente != %s"
             params.append(excluir_id)
-        try:
-            from app.dao.conexion import db
-            cursor = db.get_cursor()
-            cursor.execute(query, params)
-            return cursor.fetchone() is None
-        except Exception as e:
-            raise
+        fila = self._query_row(query, params)
+        return fila is None
 
 cliente_dao = ClienteDAO()

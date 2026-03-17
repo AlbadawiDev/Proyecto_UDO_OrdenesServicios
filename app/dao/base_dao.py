@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 import logging
 import re
 
-from app.config import Config
 from app.dao.conexion import db
 
 logger = logging.getLogger(__name__)
@@ -30,24 +29,54 @@ class BaseDAO(ABC):
             raise ValueError(f"Identificador SQL inválido: {identificador}")
 
     def _execute_fetch(self, query, params=(), fetch_one=False):
-        cursor = None
-        try:
-            cursor = db.get_cursor()
-            cursor.execute(query, params)
-            return cursor.fetchone() if fetch_one else cursor.fetchall()
-        except UnicodeDecodeError as exc:
-            fallback = Config.DB_FALLBACK_ENCODING
-            logger.warning("UnicodeDecodeError leyendo filas (%s). Retry con %s", exc, fallback)
-            db.rollback()
-            db.set_client_encoding(fallback)
-            if cursor:
-                cursor.close()
-            cursor = db.get_cursor()
-            cursor.execute(query, params)
-            return cursor.fetchone() if fetch_one else cursor.fetchall()
-        finally:
-            if cursor:
-                cursor.close()
+        """Ejecuta consulta SELECT con fallback de encodings antes de propagar error."""
+        encodings = db.obtener_encodings_preferidos()
+        original_encoding = db.get_client_encoding()
+        if original_encoding in encodings:
+            encodings = [original_encoding] + [e for e in encodings if e != original_encoding]
+
+        last_exc = None
+        for idx, encoding in enumerate(encodings):
+            cursor = None
+            try:
+                if db.get_client_encoding() != encoding:
+                    db.set_client_encoding(encoding)
+                cursor = db.get_cursor()
+                cursor.execute(query, params)
+                result = cursor.fetchone() if fetch_one else cursor.fetchall()
+                if encoding != original_encoding:
+                    logger.info('Lectura recuperada con encoding %s; restaurando %s', encoding, original_encoding)
+                    db.set_client_encoding(original_encoding)
+                return result
+            except UnicodeDecodeError as exc:
+                last_exc = exc
+                db.rollback()
+                logger.warning(
+                    'UnicodeDecodeError en lectura (%s). Intento %s/%s con encoding %s',
+                    exc,
+                    idx + 1,
+                    len(encodings),
+                    encoding,
+                )
+                if idx + 1 < len(encodings):
+                    try:
+                        db.reconnect(preferred_encoding=encodings[idx + 1])
+                    except Exception:
+                        logger.exception('Falló reconexión para encoding %s', encodings[idx + 1])
+                continue
+            finally:
+                if cursor:
+                    cursor.close()
+
+        if original_encoding != db.get_client_encoding():
+            db.set_client_encoding(original_encoding)
+        raise last_exc
+
+    def _query_rows(self, query, params=()):
+        return self._execute_fetch(query, params, fetch_one=False)
+
+    def _query_row(self, query, params=()):
+        return self._execute_fetch(query, params, fetch_one=True)
 
     def insertar(self, datos: dict) -> int:
         columnas = list(datos.keys())
@@ -78,7 +107,7 @@ class BaseDAO(ABC):
 
     def buscar_por_id(self, id_valor):
         query = f"SELECT * FROM {self.tabla} WHERE {self.primary_key} = %s AND activo = TRUE"
-        fila = self._execute_fetch(query, (id_valor,), fetch_one=True)
+        fila = self._query_row(query, (id_valor,))
         return self.mapear_a_objeto(fila) if fila else None
 
     def listar_todos(self, limite=None, offset=None):
@@ -91,13 +120,13 @@ class BaseDAO(ABC):
             query += " OFFSET %s"
             params.append(offset)
 
-        filas = self._execute_fetch(query, tuple(params), fetch_one=False)
+        filas = self._query_rows(query, tuple(params))
         return [self.mapear_a_objeto(fila) for fila in filas]
 
     def buscar_por_criterio(self, columna, valor):
         self._validar_identificador(columna)
         query = f"SELECT * FROM {self.tabla} WHERE {columna} = %s AND activo = TRUE"
-        filas = self._execute_fetch(query, (valor,), fetch_one=False)
+        filas = self._query_rows(query, (valor,))
         return [self.mapear_a_objeto(fila) for fila in filas]
 
     def actualizar(self, id_valor, datos: dict):

@@ -36,6 +36,7 @@ class FakeDB:
         self.rollback_calls = 0
         self.encoding_calls = []
         self.state = {'fetch_calls': 0}
+        self.current_encoding = 'UTF8'
 
     def get_cursor(self):
         return FakeCursor(self.state)
@@ -44,7 +45,18 @@ class FakeDB:
         self.rollback_calls += 1
 
     def set_client_encoding(self, encoding):
+        self.current_encoding = encoding
         self.encoding_calls.append(encoding)
+
+    def get_client_encoding(self):
+        return self.current_encoding
+
+    def reconnect(self, preferred_encoding=None):
+        if preferred_encoding:
+            self.set_client_encoding(preferred_encoding)
+
+    def obtener_encodings_preferidos(self):
+        return ['UTF8', 'LATIN1']
 
 
 def test_fetch_retry_on_unicode_error(monkeypatch):
@@ -56,4 +68,5 @@ def test_fetch_retry_on_unicode_error(monkeypatch):
 
     assert rows == [{'id_cliente': 1, 'activo': True}]
     assert fake_db.rollback_calls == 1
-    assert fake_db.encoding_calls[-1] == 'LATIN1'
+    assert 'LATIN1' in fake_db.encoding_calls
+    assert fake_db.get_client_encoding() == 'UTF8'
