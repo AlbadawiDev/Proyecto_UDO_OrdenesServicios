@@ -16,6 +16,15 @@ class BaseService(ABC):
     
     def __init__(self, dao):
         self.dao = dao
+
+    @staticmethod
+    def _mensaje_error_usuario(exc):
+        if isinstance(exc, UnicodeDecodeError):
+            logger.exception('Error de encoding no recuperable en capa de servicio', exc_info=exc)
+            return 'Ocurrió un problema temporal al leer datos. Intente nuevamente.'
+        logger.error('Error de negocio: %s', exc)
+        return str(exc)
+
     
     def validar_datos(self, datos, es_creacion=True):
         """
@@ -53,8 +62,7 @@ class BaseService(ABC):
                 "id": nuevo_id
             }
         except Exception as e:
-            logger.error(f"Error en crear: {e}")
-            return {"exito": False, "mensaje": str(e), "id": None}
+            return {"exito": False, "mensaje": self._mensaje_error_usuario(e), "id": None}
     
     def consultar(self, id_valor):
         """Caso de uso: Consultar entidad por ID"""
@@ -64,7 +72,7 @@ class BaseService(ABC):
                 return {"exito": True, "data": entidad.to_dict()}
             return {"exito": False, "mensaje": "No encontrado"}
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": self._mensaje_error_usuario(e)}
     
     def listar(self, limite=None, offset=None):
         """Caso de uso: Listar entidades (CU-G02)"""
@@ -76,7 +84,7 @@ class BaseService(ABC):
                 "total": len(entidades)
             }
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": self._mensaje_error_usuario(e)}
     
     def actualizar(self, id_valor, datos: dict):
         """
@@ -104,7 +112,7 @@ class BaseService(ABC):
                 return {"exito": True, "mensaje": "Actualización exitosa"}
             return {"exito": False, "mensaje": "No se pudo actualizar"}
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": self._mensaje_error_usuario(e)}
     
     def eliminar(self, id_valor, fisico=False):
         """
@@ -137,7 +145,7 @@ class BaseService(ABC):
                 return {"exito": True, "mensaje": f"Eliminación {tipo} exitosa"}
             return {"exito": False, "mensaje": "No se pudo eliminar"}
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": self._mensaje_error_usuario(e)}
     
     def buscar(self, criterio, valor):
         """Caso de uso: Buscar entidad (CU-G05)"""
@@ -149,7 +157,7 @@ class BaseService(ABC):
                 "total": len(resultados)
             }
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": self._mensaje_error_usuario(e)}
     
     # Métodos abstractos para implementar en subclases
     def _verificar_duplicados(self, datos):

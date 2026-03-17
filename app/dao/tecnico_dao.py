@@ -48,13 +48,8 @@ class TecnicoDAO(BaseDAO):
             SELECT * FROM tecnico 
             WHERE especialidad ILIKE %s AND activo = TRUE
         """
-        try:
-            from app.dao.conexion import db
-            cursor = db.get_cursor()
-            cursor.execute(query, (f'%{especialidad}%',))
-            return [self.mapear_a_objeto(fila) for fila in cursor.fetchall()]
-        except Exception as e:
-            raise
+        filas = self._query_rows(query, (f'%{especialidad}%',))
+        return [self.mapear_a_objeto(fila) for fila in filas]
     
     def validar_cedula_unica(self, cedula, excluir_id=None):
         """
@@ -68,13 +63,8 @@ class TecnicoDAO(BaseDAO):
             query += " AND id_tecnico != %s"
             params.append(excluir_id)
             
-        try:
-            from app.dao.conexion import db
-            cursor = db.get_cursor()
-            cursor.execute(query, params)
-            return cursor.fetchone() is None
-        except Exception as e:
-            raise
+        fila = self._query_row(query, params)
+        return fila is None
 
 
 # Instancia singleton para uso en servicios

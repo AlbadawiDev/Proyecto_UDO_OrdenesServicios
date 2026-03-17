@@ -31,13 +31,8 @@ class ServicioDAO(BaseDAO):
             SELECT * FROM servicio 
             WHERE nombre_servicio ILIKE %s AND activo = TRUE
         """
-        try:
-            from app.dao.conexion import db
-            cursor = db.get_cursor()
-            cursor.execute(query, (f'%{nombre}%',))
-            return [self.mapear_a_objeto(fila) for fila in cursor.fetchall()]
-        except Exception as e:
-            raise
+        filas = self._query_rows(query, (f'%{nombre}%',))
+        return [self.mapear_a_objeto(fila) for fila in filas]
     
     def listar_por_rango_costo(self, min_costo, max_costo):
         query = """
@@ -45,12 +40,7 @@ class ServicioDAO(BaseDAO):
             WHERE costo_base BETWEEN %s AND %s AND activo = TRUE
             ORDER BY costo_base
         """
-        try:
-            from app.dao.conexion import db
-            cursor = db.get_cursor()
-            cursor.execute(query, (min_costo, max_costo))
-            return [self.mapear_a_objeto(fila) for fila in cursor.fetchall()]
-        except Exception as e:
-            raise
+        filas = self._query_rows(query, (min_costo, max_costo))
+        return [self.mapear_a_objeto(fila) for fila in filas]
 
 servicio_dao = ServicioDAO()
