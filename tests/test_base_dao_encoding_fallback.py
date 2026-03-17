@@ -40,10 +40,7 @@ class FakeDB:
         self.encoding_calls = []
         self.state = {'fetch_calls': 0}
         self.current_encoding = 'UTF8'
-<<<<<<< HEAD
         self.wrapped = wrapped
-=======
->>>>>>> origin/codex/review-and-complete-flask-service-order-system
 
     def get_cursor(self):
         return FakeCursor(self.state, wrapped=self.wrapped)
@@ -57,17 +54,6 @@ class FakeDB:
 
     def get_client_encoding(self):
         return self.current_encoding
-<<<<<<< HEAD
-=======
-
-    def reconnect(self, preferred_encoding=None):
-        if preferred_encoding:
-            self.set_client_encoding(preferred_encoding)
-
-    def obtener_encodings_preferidos(self):
-        return ['UTF8', 'LATIN1']
-
->>>>>>> origin/codex/review-and-complete-flask-service-order-system
 
     def reconnect(self, preferred_encoding=None):
         if preferred_encoding:
@@ -85,7 +71,7 @@ def _assert_retry_behaviour(fake_db):
     assert fake_db.rollback_calls == 1
     assert 'LATIN1' in fake_db.encoding_calls
     assert fake_db.get_client_encoding() == 'UTF8'
-<<<<<<< HEAD
+
 
 
 def test_fetch_retry_on_unicode_error(monkeypatch):
@@ -98,5 +84,3 @@ def test_fetch_retry_on_wrapped_unicode_message(monkeypatch):
     fake_db = FakeDB(wrapped=True)
     monkeypatch.setattr('app.dao.base_dao.db', fake_db)
     _assert_retry_behaviour(fake_db)
-=======
->>>>>>> origin/codex/review-and-complete-flask-service-order-system
