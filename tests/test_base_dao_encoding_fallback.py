@@ -15,8 +15,9 @@ class FakeDAO(BaseDAO):
 
 
 class FakeCursor:
-    def __init__(self, state):
+    def __init__(self, state, wrapped=False):
         self.state = state
+        self.wrapped = wrapped
 
     def execute(self, query, params):
         self.last = (query, params)
@@ -24,6 +25,8 @@ class FakeCursor:
     def fetchall(self):
         self.state['fetch_calls'] += 1
         if self.state['fetch_calls'] == 1:
+            if self.wrapped:
+                raise RuntimeError("'utf-8' codec can't decode byte 0xf3 in position 85: invalid continuation byte")
             raise UnicodeDecodeError('utf-8', b'\xf3', 0, 1, 'invalid start byte')
         return [{'id_cliente': 1, 'activo': True}]
 
@@ -32,14 +35,15 @@ class FakeCursor:
 
 
 class FakeDB:
-    def __init__(self):
+    def __init__(self, wrapped=False):
         self.rollback_calls = 0
         self.encoding_calls = []
         self.state = {'fetch_calls': 0}
         self.current_encoding = 'UTF8'
+        self.wrapped = wrapped
 
     def get_cursor(self):
-        return FakeCursor(self.state)
+        return FakeCursor(self.state, wrapped=self.wrapped)
 
     def rollback(self):
         self.rollback_calls += 1
@@ -59,10 +63,7 @@ class FakeDB:
         return ['UTF8', 'LATIN1']
 
 
-def test_fetch_retry_on_unicode_error(monkeypatch):
-    fake_db = FakeDB()
-    monkeypatch.setattr('app.dao.base_dao.db', fake_db)
-
+def _assert_retry_behaviour(fake_db):
     dao = FakeDAO()
     rows = dao.listar_todos()
 
@@ -70,3 +71,16 @@ def test_fetch_retry_on_unicode_error(monkeypatch):
     assert fake_db.rollback_calls == 1
     assert 'LATIN1' in fake_db.encoding_calls
     assert fake_db.get_client_encoding() == 'UTF8'
+
+
+
+def test_fetch_retry_on_unicode_error(monkeypatch):
+    fake_db = FakeDB(wrapped=False)
+    monkeypatch.setattr('app.dao.base_dao.db', fake_db)
+    _assert_retry_behaviour(fake_db)
+
+
+def test_fetch_retry_on_wrapped_unicode_message(monkeypatch):
+    fake_db = FakeDB(wrapped=True)
+    monkeypatch.setattr('app.dao.base_dao.db', fake_db)
+    _assert_retry_behaviour(fake_db)

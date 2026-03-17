@@ -19,7 +19,8 @@ class BaseService(ABC):
 
     @staticmethod
     def _mensaje_error_usuario(exc):
-        if isinstance(exc, UnicodeDecodeError):
+        mensaje = str(exc).lower()
+        if isinstance(exc, UnicodeDecodeError) or "codec can't decode" in mensaje:
             logger.exception('Error de encoding no recuperable en capa de servicio', exc_info=exc)
             return 'Ocurrió un problema temporal al leer datos. Intente nuevamente.'
         logger.error('Error de negocio: %s', exc)

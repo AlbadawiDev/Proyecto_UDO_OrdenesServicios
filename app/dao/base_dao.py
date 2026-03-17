@@ -7,6 +7,12 @@ from app.dao.conexion import db
 
 logger = logging.getLogger(__name__)
 _IDENTIFIER_PATTERN = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
+_ENCODING_ERROR_MARKERS = (
+    "codec can't decode",
+    "invalid continuation byte",
+    "invalid start byte",
+    "character with byte sequence",
+)
 
 
 class BaseDAO(ABC):
@@ -28,6 +34,22 @@ class BaseDAO(ABC):
         if not _IDENTIFIER_PATTERN.match(identificador):
             raise ValueError(f"Identificador SQL inválido: {identificador}")
 
+    def _es_error_encoding(self, exc):
+        if isinstance(exc, UnicodeDecodeError):
+            return True
+
+        visited = set()
+        current = exc
+        while current and id(current) not in visited:
+            visited.add(id(current))
+            if isinstance(current, UnicodeDecodeError):
+                return True
+            message = str(current).lower()
+            if any(marker in message for marker in _ENCODING_ERROR_MARKERS):
+                return True
+            current = current.__cause__ or current.__context__
+        return False
+
     def _execute_fetch(self, query, params=(), fetch_one=False):
         """Ejecuta consulta SELECT con fallback de encodings antes de propagar error."""
         encodings = db.obtener_encodings_preferidos()
@@ -48,11 +70,14 @@ class BaseDAO(ABC):
                     logger.info('Lectura recuperada con encoding %s; restaurando %s', encoding, original_encoding)
                     db.set_client_encoding(original_encoding)
                 return result
-            except UnicodeDecodeError as exc:
+            except Exception as exc:
+                if not self._es_error_encoding(exc):
+                    raise
+
                 last_exc = exc
                 db.rollback()
                 logger.warning(
-                    'UnicodeDecodeError en lectura (%s). Intento %s/%s con encoding %s',
+                    'Error de decoding en lectura (%s). Intento %s/%s con encoding %s',
                     exc,
                     idx + 1,
                     len(encodings),
