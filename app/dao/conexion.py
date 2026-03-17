@@ -23,6 +23,17 @@ class ConexionDB:
             cls._instance._connection = None
         return cls._instance
 
+    def _resolver_encoding_inicial(self, conn):
+        encoding = (Config.DB_CLIENT_ENCODING or 'UTF8').upper()
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute("SHOW server_encoding")
+                server_encoding = (cursor.fetchone() or ['UTF8'])[0]
+            logger.info("Encoding servidor PostgreSQL detectado: %s", server_encoding)
+        except Exception:
+            logger.warning("No se pudo obtener server_encoding. Se usará %s", encoding)
+        return encoding
+
     def conectar(self):
         try:
             if self._connection is None or self._connection.closed:
@@ -33,13 +44,19 @@ class ConexionDB:
                     user=Config.DB_USER,
                     password=Config.DB_PASSWORD
                 )
-                self._connection.set_client_encoding('UTF8')
                 self._connection.autocommit = False
+                encoding = self._resolver_encoding_inicial(self._connection)
+                self.set_client_encoding(encoding)
                 logger.info("Conexión a PostgreSQL establecida")
             return self._connection
         except psycopg2.Error as e:
             logger.error(f"Error de conexión: {e}")
             raise
+
+    def set_client_encoding(self, encoding):
+        conn = self.conectar()
+        conn.set_client_encoding(encoding)
+        logger.warning("client_encoding actualizado dinámicamente a %s", encoding)
 
     def cerrar(self):
         if self._connection and not self._connection.closed:
