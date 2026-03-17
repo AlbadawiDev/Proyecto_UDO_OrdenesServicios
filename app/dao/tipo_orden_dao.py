@@ -30,13 +30,8 @@ class TipoOrdenDAO(BaseDAO):
             SELECT * FROM tipo_orden 
             WHERE nombre_tipo ILIKE %s AND activo = TRUE
         """
-        try:
-            from app.dao.conexion import db
-            cursor = db.get_cursor()
-            cursor.execute(query, (f'%{nombre}%',))
-            return [self.mapear_a_objeto(fila) for fila in cursor.fetchall()]
-        except Exception as e:
-            raise
+        filas = self._query_rows(query, (f'%{nombre}%',))
+        return [self.mapear_a_objeto(fila) for fila in filas]
     
     def listar_requieren_aprobacion(self):
         """Lista tipos que requieren aprobación especial"""

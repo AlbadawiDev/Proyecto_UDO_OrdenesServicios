@@ -41,13 +41,8 @@ class PrioridadDAO(BaseDAO):
             query += f" OFFSET %s"
             params.append(offset)
             
-        try:
-            from app.dao.conexion import db
-            cursor = db.get_cursor()
-            cursor.execute(query, params)
-            return [self.mapear_a_objeto(fila) for fila in cursor.fetchall()]
-        except Exception as e:
-            raise
+        filas = self._query_rows(query, params)
+        return [self.mapear_a_objeto(fila) for fila in filas]
     
     def buscar_por_nivel(self, nivel):
         resultados = self.buscar_por_criterio('nivel', nivel)
@@ -60,12 +55,7 @@ class PrioridadDAO(BaseDAO):
             WHERE tiempo_respuesta_horas <= %s AND activo = TRUE
             ORDER BY nivel
         """
-        try:
-            from app.dao.conexion import db
-            cursor = db.get_cursor()
-            cursor.execute(query, (horas_maximas,))
-            return [self.mapear_a_objeto(fila) for fila in cursor.fetchall()]
-        except Exception as e:
-            raise
+        filas = self._query_rows(query, (horas_maximas,))
+        return [self.mapear_a_objeto(fila) for fila in filas]
 
 prioridad_dao = PrioridadDAO()

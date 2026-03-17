@@ -41,26 +41,16 @@ class EstatusOrdenDAO(BaseDAO):
             query += f" OFFSET %s"
             params.append(offset)
             
-        try:
-            from app.dao.conexion import db
-            cursor = db.get_cursor()
-            cursor.execute(query, params)
-            return [self.mapear_a_objeto(fila) for fila in cursor.fetchall()]
-        except Exception as e:
-            raise
+        filas = self._query_rows(query, params)
+        return [self.mapear_a_objeto(fila) for fila in filas]
     
     def buscar_por_nombre(self, nombre):
         query = """
             SELECT * FROM estatus_orden 
             WHERE nombre_estatus ILIKE %s AND activo = TRUE
         """
-        try:
-            from app.dao.conexion import db
-            cursor = db.get_cursor()
-            cursor.execute(query, (f'%{nombre}%',))
-            return [self.mapear_a_objeto(fila) for fila in cursor.fetchall()]
-        except Exception as e:
-            raise
+        filas = self._query_rows(query, (f'%{nombre}%',))
+        return [self.mapear_a_objeto(fila) for fila in filas]
     
     def obtener_siguiente_estatus(self, orden_secuencial_actual):
         """Obtiene el siguiente estatus en el flujo de trabajo"""
@@ -70,13 +60,7 @@ class EstatusOrdenDAO(BaseDAO):
             ORDER BY orden_secuencial
             LIMIT 1
         """
-        try:
-            from app.dao.conexion import db
-            cursor = db.get_cursor()
-            cursor.execute(query, (orden_secuencial_actual,))
-            fila = cursor.fetchone()
-            return self.mapear_a_objeto(fila) if fila else None
-        except Exception as e:
-            raise
+        fila = self._query_row(query, (orden_secuencial_actual,))
+        return self.mapear_a_objeto(fila) if fila else None
 
 estatus_orden_dao = EstatusOrdenDAO()
