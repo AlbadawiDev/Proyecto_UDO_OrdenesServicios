@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Estatus de Orden{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">🔄 Estatus de Orden</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Flujo de trabajo y estados de las órdenes</p>
+        </div>
+        <a href="{{ url_for('estatus_orden.crear_estatus') }}" class="btn btn-primary">
+            <span>+</span> Nuevo Estatus
+        </a>
+    </div>
+    
+    <div style="background: #ebf8ff; border-left: 4px solid #4299e1; padding: 1rem; margin-bottom: 1.5rem; border-radius: 0 8px 8px 0;">
+        <p style="margin: 0; color: #2c5282; font-size: 0.9rem;">
+            <strong>💡 Tip:</strong> El orden secuencial determina el flujo de trabajo. Los estatus se muestran ordenados por este valor.
+        </p>
+    </div>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Orden</th>
+                    <th>Estatus</th>
+                    <th>Descripción</th>
+                    <th>Color</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for estatus in estatus_list %}
+                <tr>
+                    <td>
+                        <div style="width: 36px; height: 36px; background: #edf2f7; 
+                                    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+                                    font-weight: 700; color: #4a5568;">
+                            {{ estatus.orden_secuencial }}
+                        </div>
+                    </td>
+                    <td>
+                        <div style="font-weight: 600;">{{ estatus.nombre_estatus }}</div>
+                    </td>
+                    <td>
+                        {% if estatus.descripcion %}
+                            <span style="font-size: 0.875rem; color: #718096;">
+                                {{ estatus.descripcion[:60] }}{% if estatus.descripcion|length > 60 %}...{% endif %}
+                            </span>
+                        {% else %}
+                            <span style="color: #a0aec0;">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="width: 24px; height: 24px; background: {{ estatus.color_hex }}; 
+                                        border-radius: 4px; border: 1px solid #e2e8f0;"></div>
+                            <code style="font-size: 0.875rem;">{{ estatus.color_hex }}</code>
+                        </div>
+                    </td>
+                    <td>
+                        {% if estatus.activo %}
+                            <span class="badge badge-activo">● Activo</span>
+                        {% else %}
+                            <span class="badge badge-inactivo">● Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <a href="{{ url_for('estatus_orden.editar_estatus', id=estatus.id_estatus) }}" 
+                               class="btn btn-primary btn-sm">✏️ Editar</a>
+                            <form action="{{ url_for('estatus_orden.eliminar_estatus', id=estatus.id_estatus) }}" 
+                                  method="POST" style="display: inline;"
+                                  onsubmit="return confirm('¿Estás seguro de eliminar {{ estatus.nombre_estatus }}?');">
+                                <button type="submit" class="btn btn-danger btn-sm">🗑️ Eliminar</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🔄</div>
+                            <h3>No hay estatus registrados</h3>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

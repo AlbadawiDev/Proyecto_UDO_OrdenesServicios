@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle del Cliente - {{ cliente.nombre }} {{ cliente.apellido }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">👤 Detalle del Cliente</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Información completa del cliente</p>
+        </div>
+        <div class="actions">
+            <a href="{{ url_for('cliente.editar_cliente', id=cliente.id_cliente) }}" class="btn btn-primary">
+                ✏️ Editar
+            </a>
+            <a href="{{ url_for('cliente.listar_clientes') }}" class="btn btn-secondary">
+                ← Volver
+            </a>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); 
+                    border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+                    color: white; font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem;">
+            {{ cliente.nombre[0] }}{{ cliente.apellido[0] }}
+        </div>
+        <h2 style="margin-bottom: 0.5rem;">{{ cliente.nombre }} {{ cliente.apellido }}</h2>
+        <span class="badge {% if cliente.activo %}badge-activo{% else %}badge-inactivo{% endif %}">
+            {% if cliente.activo %}● Activo{% else %}● Inactivo{% endif %}
+        </span>
+    </div>
+    
+    <div class="detail-grid">
+        <div class="detail-item">
+            <div class="detail-label">ID del Cliente</div>
+            <div class="detail-value">#{{ cliente.id_cliente }}</div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="detail-label">Cédula</div>
+            <div class="detail-value">{{ cliente.cedula }}</div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="detail-label">Teléfono</div>
+            <div class="detail-value">{{ cliente.telefono or 'No registrado' }}</div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="detail-label">Correo Electrónico</div>
+            <div class="detail-value">{{ cliente.email or 'No registrado' }}</div>
+        </div>
+        
+        <div class="detail-item" style="grid-column: 1 / -1;">
+            <div class="detail-label">Dirección</div>
+            <div class="detail-value">{{ cliente.direccion or 'No registrada' }}</div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="detail-label">Fecha de Registro</div>
+            <div class="detail-value">{{ cliente.fecha_registro }}</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

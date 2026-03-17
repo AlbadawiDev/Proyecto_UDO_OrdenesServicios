@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Clientes{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">👥 Clientes</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Gestiona los clientes del sistema</p>
+        </div>
+        <a href="{{ url_for('cliente.crear_cliente') }}" class="btn btn-primary">
+            <span>+</span> Nuevo Cliente
+        </a>
+    </div>
+    
+    <div class="search-box">
+        <input type="text" id="busqueda" placeholder="Buscar por nombre, apellido o cédula..." 
+               class="form-control search-input">
+    </div>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre Completo</th>
+                    <th>Cédula</th>
+                    <th>Contacto</th>
+                    <th>Dirección</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr>
+                    <td><strong>#{{ cliente.id_cliente }}</strong></td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); 
+                                        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+                                        color: white; font-weight: 600;">
+                                {{ cliente.nombre[0] }}{{ cliente.apellido[0] }}
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">{{ cliente.nombre }} {{ cliente.apellido }}</div>
+                                {% if cliente.email %}
+                                <div style="font-size: 0.875rem; color: #718096;">{{ cliente.email }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ cliente.cedula }}</td>
+                    <td>
+                        {% if cliente.telefono %}
+                        <div>📞 {{ cliente.telefono }}</div>
+                        {% else %}
+                        <span style="color: #a0aec0;">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if cliente.direccion %}
+                        <span style="font-size: 0.875rem;">{{ cliente.direccion[:50] }}{% if cliente.direccion|length > 50 %}...{% endif %}</span>
+                        {% else %}
+                        <span style="color: #a0aec0;">Sin dirección</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if cliente.activo %}
+                            <span class="badge badge-activo">● Activo</span>
+                        {% else %}
+                            <span class="badge badge-inactivo">● Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <a href="{{ url_for('cliente.ver_cliente', id=cliente.id_cliente) }}" 
+                               class="btn btn-success btn-sm">👁️ Ver</a>
+                            <a href="{{ url_for('cliente.editar_cliente', id=cliente.id_cliente) }}" 
+                               class="btn btn-primary btn-sm">✏️ Editar</a>
+                            <form action="{{ url_for('cliente.eliminar_cliente', id=cliente.id_cliente) }}" 
+                                  method="POST" style="display: inline;"
+                                  onsubmit="return confirm('¿Estás seguro de eliminar a {{ cliente.nombre }} {{ cliente.apellido }}?');">
+                                <button type="submit" class="btn btn-danger btn-sm">🗑️ Eliminar</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">👥</div>
+                            <h3>No hay clientes registrados</h3>
+                            <p>Comienza agregando tu primer cliente al sistema</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('busqueda').addEventListener('input', function(e) {
+        const termino = e.target.value.toLowerCase();
+        const filas = document.querySelectorAll('tbody tr');
+        
+        filas.forEach(fila => {
+            const texto = fila.textContent.toLowerCase();
+            fila.style.display = texto.includes(termino) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}

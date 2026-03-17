@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Estatus - {{ estatus.nombre_estatus }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 700px; margin: 0 auto;">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">✏️ Editar Estatus</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Modifica {{ estatus.nombre_estatus }}</p>
+        </div>
+    </div>
+    
+    <form method="POST">
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label for="nombre_estatus">Nombre del Estatus *</label>
+                <input type="text" id="nombre_estatus" name="nombre_estatus" class="form-control" required 
+                       value="{{ estatus.nombre_estatus }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="orden_secuencial">Orden Secuencial *</label>
+                <input type="number" id="orden_secuencial" name="orden_secuencial" class="form-control" required 
+                       min="0" value="{{ estatus.orden_secuencial }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="color_hex">Color (Hexadecimal)</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="color" id="color_picker" value="{{ estatus.color_hex }}" 
+                           style="width: 50px; height: 46px; border: none; border-radius: 8px; cursor: pointer;">
+                    <input type="text" id="color_hex" name="color_hex" class="form-control" 
+                           value="{{ estatus.color_hex }}">
+                </div>
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="descripcion">Descripción</label>
+                <textarea id="descripcion" name="descripcion" class="form-control">{{ estatus.descripcion or '' }}</textarea>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem; justify-content: flex-end;">
+            <a href="{{ url_for('estatus_orden.listar_estatus') }}" class="btn btn-secondary">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                💾 Guardar Cambios
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('color_picker').addEventListener('input', function(e) {
+        document.getElementById('color_hex').value = e.target.value;
+    });
+    document.getElementById('color_hex').addEventListener('input', function(e) {
+        document.getElementById('color_picker').value = e.target.value;
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Equipo - {{ equipo.nombre_equipo }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">✏️ Editar Equipo</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Modifica la información de {{ equipo.nombre_equipo }}</p>
+        </div>
+    </div>
+    
+    <form method="POST">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="nombre_equipo">Nombre del Equipo *</label>
+                <input type="text" id="nombre_equipo" name="nombre_equipo" class="form-control" required 
+                       value="{{ equipo.nombre_equipo }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="tipo">Tipo *</label>
+                <select id="tipo" name="tipo" class="form-control" required>
+                    <option value="">Seleccione...</option>
+                    <option value="Laptop" {% if equipo.tipo == 'Laptop' %}selected{% endif %}>💻 Laptop</option>
+                    <option value="Desktop" {% if equipo.tipo == 'Desktop' %}selected{% endif %}>🖥️ Desktop</option>
+                    <option value="Servidor" {% if equipo.tipo == 'Servidor' %}selected{% endif %}>🖥️ Servidor</option>
+                    <option value="Impresora" {% if equipo.tipo == 'Impresora' %}selected{% endif %}>🖨️ Impresora</option>
+                    <option value="Monitor" {% if equipo.tipo == 'Monitor' %}selected{% endif %}>🖥️ Monitor</option>
+                    <option value="Periférico" {% if equipo.tipo == 'Periférico' %}selected{% endif %}>🖱️ Periférico</option>
+                    <option value="Otro" {% if equipo.tipo == 'Otro' %}selected{% endif %}>📦 Otro</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="marca">Marca</label>
+                <input type="text" id="marca" name="marca" class="form-control" 
+                       value="{{ equipo.marca or '' }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="modelo">Modelo</label>
+                <input type="text" id="modelo" name="modelo" class="form-control" 
+                       value="{{ equipo.modelo or '' }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="numero_serie">Número de Serie</label>
+                <input type="text" id="numero_serie" name="numero_serie" class="form-control" 
+                       value="{{ equipo.numero_serie or '' }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="id_cliente">Cliente Propietario *</label>
+                <select id="id_cliente" name="id_cliente" class="form-control" required>
+                    <option value="">Seleccione un cliente...</option>
+                    {% for cliente in clientes %}
+                    <option value="{{ cliente.id_cliente }}" {% if equipo.id_cliente == cliente.id_cliente %}selected{% endif %}>
+                        {{ cliente.nombre }} {{ cliente.apellido }} - {{ cliente.cedula }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem; justify-content: flex-end;">
+            <a href="{{ url_for('equipo.listar_equipos') }}" class="btn btn-secondary">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                💾 Guardar Cambios
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

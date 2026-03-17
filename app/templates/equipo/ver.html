@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle del Equipo - {{ equipo.nombre_equipo }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">💻 Detalle del Equipo</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Información completa del equipo</p>
+        </div>
+        <div class="actions">
+            <a href="{{ url_for('equipo.editar_equipo', id=equipo.id_equipo) }}" class="btn btn-primary">
+                ✏️ Editar
+            </a>
+            <a href="{{ url_for('equipo.listar_equipos') }}" class="btn btn-secondary">
+                ← Volver
+            </a>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); 
+                    border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+                    color: white; font-size: 3rem; margin-bottom: 1rem;">
+            💻
+        </div>
+        <h2 style="margin-bottom: 0.5rem;">{{ equipo.nombre_equipo }}</h2>
+        <span style="background: #ebf8ff; color: #2c5282; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.875rem;">
+            {{ equipo.tipo }}
+        </span>
+    </div>
+    
+    <div class="detail-grid">
+        <div class="detail-item">
+            <div class="detail-label">ID del Equipo</div>
+            <div class="detail-value">#{{ equipo.id_equipo }}</div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="detail-label">Marca</div>
+            <div class="detail-value">{{ equipo.marca or 'No especificada' }}</div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="detail-label">Modelo</div>
+            <div class="detail-value">{{ equipo.modelo or 'No especificado' }}</div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="detail-label">Número de Serie</div>
+            <div class="detail-value">{{ equipo.numero_serie or 'No registrado' }}</div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="detail-label">Cliente Propietario</div>
+            <div class="detail-value">{{ equipo.nombre_cliente or 'Sin asignar' }}</div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="detail-label">Estado</div>
+            <div class="detail-value">
+                <span class="badge {% if equipo.activo %}badge-activo{% else %}badge-inactivo{% endif %}">
+                    {% if equipo.activo %}● Activo{% else %}● Inactivo{% endif %}
+                </span>
+            </div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="detail-label">Fecha de Registro</div>
+            <div class="detail-value">{{ equipo.fecha_registro }}</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Estatus{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 700px; margin: 0 auto;">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">➕ Nuevo Estatus</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Define un nuevo estado en el flujo de trabajo</p>
+        </div>
+    </div>
+    
+    <form method="POST">
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label for="nombre_estatus">Nombre del Estatus *</label>
+                <input type="text" id="nombre_estatus" name="nombre_estatus" class="form-control" required 
+                       placeholder="Ej: En Proceso, Pendiente de Repuesto" 
+                       value="{{ request.form.get('nombre_estatus', '') }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="orden_secuencial">Orden Secuencial *</label>
+                <input type="number" id="orden_secuencial" name="orden_secuencial" class="form-control" required 
+                       placeholder="Ej: 1, 2, 3..." min="0"
+                       value="{{ request.form.get('orden_secuencial', '0') }}">
+                <small style="color: #718096;">Determina la posición en el flujo de trabajo</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="color_hex">Color (Hexadecimal)</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="color" id="color_picker" value="#4299e1" 
+                           style="width: 50px; height: 46px; border: none; border-radius: 8px; cursor: pointer;">
+                    <input type="text" id="color_hex" name="color_hex" class="form-control" 
+                           placeholder="#4299e1" value="{{ request.form.get('color_hex', '#4299e1') }}">
+                </div>
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="descripcion">Descripción</label>
+                <textarea id="descripcion" name="descripcion" class="form-control" 
+                          placeholder="Describe qué significa este estatus...">{{ request.form.get('descripcion', '') }}</textarea>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem; justify-content: flex-end;">
+            <a href="{{ url_for('estatus_orden.listar_estatus') }}" class="btn btn-secondary">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                💾 Guardar Estatus
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Sincronizar color picker con input de texto
+    document.getElementById('color_picker').addEventListener('input', function(e) {
+        document.getElementById('color_hex').value = e.target.value;
+    });
+    document.getElementById('color_hex').addEventListener('input', function(e) {
+        document.getElementById('color_picker').value = e.target.value;
+    });
+</script>
+{% endblock %}

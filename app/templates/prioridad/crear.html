@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Nueva Prioridad{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 700px; margin: 0 auto;">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">➕ Nueva Prioridad</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Define un nivel de prioridad y su tiempo de respuesta</p>
+        </div>
+    </div>
+    
+    <form method="POST">
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label for="nombre_prioridad">Nombre de la Prioridad *</label>
+                <input type="text" id="nombre_prioridad" name="nombre_prioridad" class="form-control" required 
+                       placeholder="Ej: Crítica, Alta, Media, Baja" 
+                       value="{{ request.form.get('nombre_prioridad', '') }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="nivel">Nivel *</label>
+                <input type="number" id="nivel" name="nivel" class="form-control" required 
+                       placeholder="1 = Mayor prioridad" min="1"
+                       value="{{ request.form.get('nivel', '1') }}">
+                <small style="color: #718096;">1 es la mayor prioridad, 2, 3, etc. son menores</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="tiempo_respuesta_horas">Tiempo de Respuesta (horas)</label>
+                <input type="number" id="tiempo_respuesta_horas" name="tiempo_respuesta_horas" class="form-control" 
+                       placeholder="Ej: 4, 24, 72..." min="1"
+                       value="{{ request.form.get('tiempo_respuesta_horas', '') }}">
+                <small style="color: #718096;">SLA - Tiempo máximo para responder</small>
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="color_hex">Color Identificador</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="color" id="color_picker" value="#e53e3e" 
+                           style="width: 50px; height: 46px; border: none; border-radius: 8px; cursor: pointer;">
+                    <input type="text" id="color_hex" name="color_hex" class="form-control" 
+                           placeholder="#e53e3e" value="{{ request.form.get('color_hex', '#e53e3e') }}">
+                </div>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem; justify-content: flex-end;">
+            <a href="{{ url_for('prioridad.listar_prioridades') }}" class="btn btn-secondary">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                💾 Guardar Prioridad
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('color_picker').addEventListener('input', function(e) {
+        document.getElementById('color_hex').value = e.target.value;
+    });
+    document.getElementById('color_hex').addEventListener('input', function(e) {
+        document.getElementById('color_picker').value = e.target.value;
+    });
+</script>
+{% endblock %}

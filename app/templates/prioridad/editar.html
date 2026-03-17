@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Prioridad - {{ prioridad.nombre_prioridad }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 700px; margin: 0 auto;">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">✏️ Editar Prioridad</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Modifica {{ prioridad.nombre_prioridad }}</p>
+        </div>
+    </div>
+    
+    <form method="POST">
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label for="nombre_prioridad">Nombre de la Prioridad *</label>
+                <input type="text" id="nombre_prioridad" name="nombre_prioridad" class="form-control" required 
+                       value="{{ prioridad.nombre_prioridad }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="nivel">Nivel *</label>
+                <input type="number" id="nivel" name="nivel" class="form-control" required 
+                       min="1" value="{{ prioridad.nivel }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="tiempo_respuesta_horas">Tiempo de Respuesta (horas)</label>
+                <input type="number" id="tiempo_respuesta_horas" name="tiempo_respuesta_horas" class="form-control" 
+                       min="1" value="{{ prioridad.tiempo_respuesta_horas or '' }}">
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="color_hex">Color Identificador</label>
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="color" id="color_picker" value="{{ prioridad.color_hex }}" 
+                           style="width: 50px; height: 46px; border: none; border-radius: 8px; cursor: pointer;">
+                    <input type="text" id="color_hex" name="color_hex" class="form-control" 
+                           value="{{ prioridad.color_hex }}">
+                </div>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem; justify-content: flex-end;">
+            <a href="{{ url_for('prioridad.listar_prioridades') }}" class="btn btn-secondary">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                💾 Guardar Cambios
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('color_picker').addEventListener('input', function(e) {
+        document.getElementById('color_hex').value = e.target.value;
+    });
+    document.getElementById('color_hex').addEventListener('input', function(e) {
+        document.getElementById('color_picker').value = e.target.value;
+    });
+</script>
+{% endblock %}

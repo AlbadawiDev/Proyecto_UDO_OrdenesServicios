@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle del Servicio - {{ servicio.nombre_servicio }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">📋 Detalle del Servicio</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Información completa del servicio</p>
+        </div>
+        <div class="actions">
+            <a href="{{ url_for('servicio.editar_servicio', id=servicio.id_servicio) }}" class="btn btn-primary">
+                ✏️ Editar
+            </a>
+            <a href="{{ url_for('servicio.listar_servicios') }}" class="btn btn-secondary">
+                ← Volver
+            </a>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); 
+                    border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+                    color: white; font-size: 3rem; margin-bottom: 1rem;">
+            📋
+        </div>
+        <h2 style="margin-bottom: 0.5rem;">{{ servicio.nombre_servicio }}</h2>
+        <span class="badge {% if servicio.activo %}badge-activo{% else %}badge-inactivo{% endif %}">
+            {% if servicio.activo %}● Activo{% else %}● Inactivo{% endif %}
+        </span>
+    </div>
+    
+    <div class="detail-grid">
+        <div class="detail-item">
+            <div class="detail-label">ID del Servicio</div>
+            <div class="detail-value">#{{ servicio.id_servicio }}</div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="detail-label">Costo Base</div>
+            <div class="detail-value" style="color: #38a169; font-size: 1.5rem;">
+                {% if servicio.costo_base %}
+                    ${{ "%.2f"|format(servicio.costo_base) }}
+                {% else %}
+                    No definido
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="detail-item">
+            <div class="detail-label">Tiempo Estimado</div>
+            <div class="detail-value">
+                {% if servicio.tiempo_estimado_horas %}
+                    {{ servicio.tiempo_estimado_horas }} horas
+                {% else %}
+                    No definido
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="detail-item" style="grid-column: 1 / -1;">
+            <div class="detail-label">Descripción</div>
+            <div class="detail-value" style="font-weight: normal; line-height: 1.6;">
+                {{ servicio.descripcion or 'Sin descripción' }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Servicios{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">📋 Servicios</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Servicios ofrecidos por el sistema</p>
+        </div>
+        <a href="{{ url_for('servicio.crear_servicio') }}" class="btn btn-primary">
+            <span>+</span> Nuevo Servicio
+        </a>
+    </div>
+    
+    <div class="search-box">
+        <input type="text" id="busqueda" placeholder="Buscar servicio..." 
+               class="form-control search-input">
+    </div>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Servicio</th>
+                    <th>Descripción</th>
+                    <th>Costo Base</th>
+                    <th>Tiempo Est.</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for servicio in servicios %}
+                <tr>
+                    <td><strong>#{{ servicio.id_servicio }}</strong></td>
+                    <td>
+                        <div style="font-weight: 600;">{{ servicio.nombre_servicio }}</div>
+                    </td>
+                    <td>
+                        {% if servicio.descripcion %}
+                            <span style="font-size: 0.875rem; color: #718096;">
+                                {{ servicio.descripcion[:60] }}{% if servicio.descripcion|length > 60 %}...{% endif %}
+                            </span>
+                        {% else %}
+                            <span style="color: #a0aec0;">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if servicio.costo_base %}
+                            <span style="font-weight: 600; color: #38a169;">
+                                ${{ "%.2f"|format(servicio.costo_base) }}
+                            </span>
+                        {% else %}
+                            <span style="color: #a0aec0;">No definido</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if servicio.tiempo_estimado_horas %}
+                            <span style="background: #fef5e7; color: #975a16; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.875rem;">
+                                ⏱️ {{ servicio.tiempo_estimado_horas }}h
+                            </span>
+                        {% else %}
+                            <span style="color: #a0aec0;">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if servicio.activo %}
+                            <span class="badge badge-activo">● Activo</span>
+                        {% else %}
+                            <span class="badge badge-inactivo">● Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <a href="{{ url_for('servicio.ver_servicio', id=servicio.id_servicio) }}" 
+                               class="btn btn-success btn-sm">👁️ Ver</a>
+                            <a href="{{ url_for('servicio.editar_servicio', id=servicio.id_servicio) }}" 
+                               class="btn btn-primary btn-sm">✏️ Editar</a>
+                            <form action="{{ url_for('servicio.eliminar_servicio', id=servicio.id_servicio) }}" 
+                                  method="POST" style="display: inline;"
+                                  onsubmit="return confirm('¿Estás seguro de eliminar {{ servicio.nombre_servicio }}?');">
+                                <button type="submit" class="btn btn-danger btn-sm">🗑️ Eliminar</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <h3>No hay servicios registrados</h3>
+                            <p>Comienza agregando tu primer servicio</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('busqueda').addEventListener('input', function(e) {
+        const termino = e.target.value.toLowerCase();
+        const filas = document.querySelectorAll('tbody tr');
+        
+        filas.forEach(fila => {
+            const texto = fila.textContent.toLowerCase();
+            fila.style.display = texto.includes(termino) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}

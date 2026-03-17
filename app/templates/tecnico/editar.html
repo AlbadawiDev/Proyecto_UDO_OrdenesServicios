@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Técnico{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">✏️ Editar Técnico</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">
+                Modifica la información del técnico
+            </p>
+        </div>
+    </div>
+    
+    <form method="POST">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="nombre">Nombre *</label>
+                <input type="text" id="nombre" name="nombre" class="form-control" required 
+                       value="{{ tecnico.nombre }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="apellido">Apellido *</label>
+                <input type="text" id="apellido" name="apellido" class="form-control" required 
+                       value="{{ tecnico.apellido }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="cedula">Cédula *</label>
+                <input type="text" id="cedula" name="cedula" class="form-control" required 
+                       value="{{ tecnico.cedula }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="especialidad">Especialidad</label>
+                <input type="text" id="especialidad" name="especialidad" class="form-control" 
+                       value="{{ tecnico.especialidad }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="telefono">Teléfono</label>
+                <input type="tel" id="telefono" name="telefono" class="form-control" 
+                       value="{{ tecnico.telefono }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Correo Electrónico</label>
+                <input type="email" id="email" name="email" class="form-control" 
+                       value="{{ tecnico.email }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="fecha_contratacion">Fecha de Contratación</label>
+                <input type="date" id="fecha_contratacion" name="fecha_contratacion" 
+                       class="form-control"
+                       value="{{ tecnico.fecha_contratacion }}">
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem; justify-content: flex-end;">
+            <a href="{{ url_for('tecnico.listar_tecnicos') }}" class="btn btn-secondary">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                💾 Guardar Cambios
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

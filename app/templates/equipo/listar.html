@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Equipos{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">💻 Equipos</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Gestiona los equipos y dispositivos</p>
+        </div>
+        <a href="{{ url_for('equipo.crear_equipo') }}" class="btn btn-primary">
+            <span>+</span> Nuevo Equipo
+        </a>
+    </div>
+    
+    <div class="search-box">
+        <input type="text" id="busqueda" placeholder="Buscar por nombre, tipo, marca o cliente..." 
+               class="form-control search-input">
+    </div>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Equipo</th>
+                    <th>Tipo</th>
+                    <th>Marca/Modelo</th>
+                    <th>N° Serie</th>
+                    <th>Cliente</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for equipo in equipos %}
+                <tr>
+                    <td><strong>#{{ equipo.id_equipo }}</strong></td>
+                    <td>
+                        <div style="font-weight: 600;">{{ equipo.nombre_equipo }}</div>
+                    </td>
+                    <td>
+                        <span style="background: #ebf8ff; color: #2c5282; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.875rem;">
+                            {{ equipo.tipo }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if equipo.marca or equipo.modelo %}
+                            {{ equipo.marca or '' }} {{ equipo.modelo or '' }}
+                        {% else %}
+                            <span style="color: #a0aec0;">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if equipo.numero_serie %}
+                            <code style="background: #f7fafc; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem;">
+                                {{ equipo.numero_serie }}
+                            </code>
+                        {% else %}
+                            <span style="color: #a0aec0;">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if equipo.nombre_cliente %}
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="width: 28px; height: 28px; background: #48bb78; 
+                                            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+                                            color: white; font-size: 0.75rem; font-weight: 600;">
+                                    {{ equipo.nombre_cliente[0] }}
+                                </div>
+                                <span style="font-size: 0.875rem;">{{ equipo.nombre_cliente }}</span>
+                            </div>
+                        {% else %}
+                            <span style="color: #a0aec0;">Sin asignar</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if equipo.activo %}
+                            <span class="badge badge-activo">● Activo</span>
+                        {% else %}
+                            <span class="badge badge-inactivo">● Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <a href="{{ url_for('equipo.ver_equipo', id=equipo.id_equipo) }}" 
+                               class="btn btn-success btn-sm">👁️ Ver</a>
+                            <a href="{{ url_for('equipo.editar_equipo', id=equipo.id_equipo) }}" 
+                               class="btn btn-primary btn-sm">✏️ Editar</a>
+                            <form action="{{ url_for('equipo.eliminar_equipo', id=equipo.id_equipo) }}" 
+                                  method="POST" style="display: inline;"
+                                  onsubmit="return confirm('¿Estás seguro de eliminar {{ equipo.nombre_equipo }}?');">
+                                <button type="submit" class="btn btn-danger btn-sm">🗑️ Eliminar</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💻</div>
+                            <h3>No hay equipos registrados</h3>
+                            <p>Comienza agregando tu primer equipo al sistema</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('busqueda').addEventListener('input', function(e) {
+        const termino = e.target.value.toLowerCase();
+        const filas = document.querySelectorAll('tbody tr');
+        
+        filas.forEach(fila => {
+            const texto = fila.textContent.toLowerCase();
+            fila.style.display = texto.includes(termino) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}

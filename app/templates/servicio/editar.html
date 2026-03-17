@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Servicio - {{ servicio.nombre_servicio }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">✏️ Editar Servicio</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Modifica la información de {{ servicio.nombre_servicio }}</p>
+        </div>
+    </div>
+    
+    <form method="POST">
+        <div class="form-grid">
+            <div class="form-group full-width">
+                <label for="nombre_servicio">Nombre del Servicio *</label>
+                <input type="text" id="nombre_servicio" name="nombre_servicio" class="form-control" required 
+                       value="{{ servicio.nombre_servicio }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="costo_base">Costo Base ($)</label>
+                <input type="number" id="costo_base" name="costo_base" class="form-control" 
+                       step="0.01" min="0"
+                       value="{{ servicio.costo_base or '' }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="tiempo_estimado_horas">Tiempo Estimado (horas)</label>
+                <input type="number" id="tiempo_estimado_horas" name="tiempo_estimado_horas" class="form-control" 
+                       min="1" value="{{ servicio.tiempo_estimado_horas or '' }}">
+            </div>
+        </div>
+        
+        <div class="form-group full-width" style="margin-top: 1.5rem;">
+            <label for="descripcion">Descripción del Servicio</label>
+            <textarea id="descripcion" name="descripcion" class="form-control">{{ servicio.descripcion or '' }}</textarea>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem; justify-content: flex-end;">
+            <a href="{{ url_for('servicio.listar_servicios') }}" class="btn btn-secondary">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                💾 Guardar Cambios
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

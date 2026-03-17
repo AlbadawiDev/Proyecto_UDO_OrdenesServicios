@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Técnicos{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">🔧 Técnicos</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Gestiona el equipo técnico del sistema</p>
+        </div>
+        <a href="{{ url_for('tecnico.crear_tecnico') }}" class="btn btn-primary">
+            <span>+</span> Nuevo Técnico
+        </a>
+    </div>
+    
+    <div class="search-box">
+        <input type="text" id="busqueda" placeholder="Buscar por nombre, apellido o cédula..." 
+               class="form-control search-input">
+    </div>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre Completo</th>
+                    <th>Cédula</th>
+                    <th>Especialidad</th>
+                    <th>Contacto</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tecnico in tecnicos %}
+                <tr>
+                    <td><strong>#{{ tecnico.id_tecnico }}</strong></td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                                        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+                                        color: white; font-weight: 600;">
+                                {{ tecnico.nombre[0] }}{{ tecnico.apellido[0] }}
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">{{ tecnico.nombre }} {{ tecnico.apellido }}</div>
+                                {% if tecnico.email %}
+                                <div style="font-size: 0.875rem; color: #718096;">{{ tecnico.email }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ tecnico.cedula }}</td>
+                    <td>
+                        {% if tecnico.especialidad %}
+                        <span style="background: #e6fffa; color: #234e52; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.875rem;">
+                            {{ tecnico.especialidad }}
+                        </span>
+                        {% else %}
+                        <span style="color: #a0aec0;">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if tecnico.telefono %}
+                        <div>📞 {{ tecnico.telefono }}</div>
+                        {% else %}
+                        <span style="color: #a0aec0;">Sin teléfono</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if tecnico.activo %}
+                            <span class="badge badge-activo">● Activo</span>
+                        {% else %}
+                            <span class="badge badge-inactivo">● Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <a href="{{ url_for('tecnico.ver_tecnico', id=tecnico.id_tecnico) }}" 
+                               class="btn btn-success btn-sm">👁️ Ver</a>
+                            <a href="{{ url_for('tecnico.editar_tecnico', id=tecnico.id_tecnico) }}" 
+                               class="btn btn-primary btn-sm">✏️ Editar</a>
+                            <form action="{{ url_for('tecnico.eliminar_tecnico', id=tecnico.id_tecnico) }}" 
+                                  method="POST" style="display: inline;"
+                                  onsubmit="return confirm('¿Estás seguro de eliminar a {{ tecnico.nombre }} {{ tecnico.apellido }}?');">
+                                <button type="submit" class="btn btn-danger btn-sm">🗑️ Eliminar</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🔧</div>
+                            <h3>No hay técnicos registrados</h3>
+                            <p>Comienza agregando tu primer técnico al sistema</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Búsqueda en tiempo real
+    document.getElementById('busqueda').addEventListener('input', function(e) {
+        const termino = e.target.value.toLowerCase();
+        const filas = document.querySelectorAll('tbody tr');
+        
+        filas.forEach(fila => {
+            const texto = fila.textContent.toLowerCase();
+            fila.style.display = texto.includes(termino) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}

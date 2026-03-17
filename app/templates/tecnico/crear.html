@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Técnico{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">➕ Nuevo Técnico</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Registra un nuevo técnico en el sistema</p>
+        </div>
+    </div>
+    
+    <form method="POST">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="nombre">Nombre *</label>
+                <input type="text" id="nombre" name="nombre" class="form-control" required 
+                       placeholder="Ej: Juan" value="{{ request.form.get('nombre', '') }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="apellido">Apellido *</label>
+                <input type="text" id="apellido" name="apellido" class="form-control" required 
+                       placeholder="Ej: Pérez" value="{{ request.form.get('apellido', '') }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="cedula">Cédula *</label>
+                <input type="text" id="cedula" name="cedula" class="form-control" required 
+                       placeholder="V-12345678" value="{{ request.form.get('cedula', '') }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="especialidad">Especialidad</label>
+                <input type="text" id="especialidad" name="especialidad" class="form-control" 
+                       placeholder="Ej: Redes, Hardware, Software" 
+                       value="{{ request.form.get('especialidad', '') }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="telefono">Teléfono</label>
+                <input type="tel" id="telefono" name="telefono" class="form-control" 
+                       placeholder="0414-1234567" value="{{ request.form.get('telefono', '') }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Correo Electrónico</label>
+                <input type="email" id="email" name="email" class="form-control" 
+                       placeholder="tecnico@empresa.com" value="{{ request.form.get('email', '') }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="fecha_contratacion">Fecha de Contratación</label>
+                <input type="date" id="fecha_contratacion" name="fecha_contratacion" 
+                       class="form-control" value="{{ request.form.get('fecha_contratacion', '') }}">
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem; justify-content: flex-end;">
+            <a href="{{ url_for('tecnico.listar_tecnicos') }}" class="btn btn-secondary">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                💾 Guardar Técnico
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
