@@ -37,7 +37,7 @@ class BaseDAO(ABC):
             return cursor.fetchone() if fetch_one else cursor.fetchall()
         except UnicodeDecodeError as exc:
             fallback = Config.DB_FALLBACK_ENCODING
-            logger.warning("UnicodeDecodeError leyendo filas (%s). Retry con %s", exc, fallback)
+            logger.info("UnicodeDecodeError leyendo filas (%s). Retry con %s", exc, fallback)
             db.rollback()
             db.set_client_encoding(fallback)
             if cursor:
