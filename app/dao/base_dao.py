@@ -70,6 +70,7 @@ class BaseDAO(ABC):
                     logger.info('Lectura recuperada con encoding %s; restaurando %s', encoding, original_encoding)
                     db.set_client_encoding(original_encoding)
                 return result
+<<<<<<< HEAD
             except Exception as exc:
                 if not self._es_error_encoding(exc):
                     raise
@@ -78,6 +79,13 @@ class BaseDAO(ABC):
                 db.rollback()
                 logger.warning(
                     'Error de decoding en lectura (%s). Intento %s/%s con encoding %s',
+=======
+            except UnicodeDecodeError as exc:
+                last_exc = exc
+                db.rollback()
+                logger.warning(
+                    'UnicodeDecodeError en lectura (%s). Intento %s/%s con encoding %s',
+>>>>>>> origin/codex/review-and-complete-flask-service-order-system
                     exc,
                     idx + 1,
                     len(encodings),
