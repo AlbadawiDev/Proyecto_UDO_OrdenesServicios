@@ -35,6 +35,6 @@ class TipoOrdenService(BaseService):
                 "data": [t.to_dict() for t in tipos]
             }
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales."}
 
 tipo_orden_service = TipoOrdenService()

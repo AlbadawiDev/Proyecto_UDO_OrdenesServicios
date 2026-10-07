@@ -44,7 +44,7 @@ class EquipoService(BaseService):
                 "total": len(equipos)
             }
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales."}
     
     def listar_por_tipo(self, tipo):
         try:
@@ -54,7 +54,7 @@ class EquipoService(BaseService):
                 "data": [e.to_dict() for e in equipos]
             }
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales."}
     
     def buscar_por_numero_serie(self, numero_serie):
         try:
@@ -63,6 +63,6 @@ class EquipoService(BaseService):
                 return {"exito": True, "data": equipo.to_dict()}
             return {"exito": False, "mensaje": "Equipo no encontrado"}
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales."}
 
 equipo_service = EquipoService()

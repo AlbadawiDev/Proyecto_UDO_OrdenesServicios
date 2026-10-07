@@ -44,7 +44,7 @@ class PrioridadService(BaseService):
                 return {"exito": True, "data": prioridad.to_dict()}
             return {"exito": False, "mensaje": "Prioridad no encontrada"}
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales."}
     
     def obtener_para_sla(self, horas_maximas):
         try:
@@ -54,6 +54,6 @@ class PrioridadService(BaseService):
                 "data": [p.to_dict() for p in prioridades]
             }
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales."}
 
 prioridad_service = PrioridadService()

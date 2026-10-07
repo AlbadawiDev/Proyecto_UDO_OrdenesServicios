@@ -12,6 +12,7 @@
     </div>
     
     <form method="POST">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
         <div class="form-grid">
             <div class="form-group full-width">
                 <label for="nombre_servicio">Nombre del Servicio *</label>

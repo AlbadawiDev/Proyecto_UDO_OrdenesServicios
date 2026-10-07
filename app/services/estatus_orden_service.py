@@ -42,6 +42,6 @@ class EstatusOrdenService(BaseService):
                 return {"exito": True, "data": siguiente.to_dict()}
             return {"exito": False, "mensaje": "No hay siguiente estatus en el flujo"}
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales."}
 
 estatus_orden_service = EstatusOrdenService()

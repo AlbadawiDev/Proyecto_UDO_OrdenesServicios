@@ -67,6 +67,7 @@
                             <form action="{{ url_for('tipo_orden.eliminar_tipo', id=tipo.id_tipo_orden) }}" 
                                   method="POST" style="display: inline;"
                                   onsubmit="return confirm('¿Estás seguro de eliminar {{ tipo.nombre_tipo }}?');">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
                                 <button type="submit" class="btn btn-danger btn-sm">🗑️ Eliminar</button>
                             </form>
                         </div>

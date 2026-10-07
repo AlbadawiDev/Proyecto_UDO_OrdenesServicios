@@ -5,8 +5,20 @@ Implementa reglas de negocio, validaciones y coordinación entre DAOs.
 """
 from abc import ABC, abstractmethod
 import logging
+from functools import wraps
 
 logger = logging.getLogger(__name__)
+
+def safe_service(method):
+    @wraps(method)
+    def guarded(self, *args, **kwargs):
+        try:
+            return method(self, *args, **kwargs)
+        except Exception:
+            logger.exception("Fallo en %s", method.__name__)
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales."}
+    return guarded
+
 
 class BaseService(ABC):
     """
@@ -24,6 +36,7 @@ class BaseService(ABC):
         """
         return True, ""
     
+    @safe_service
     def crear(self, datos: dict):
         """
         Caso de uso: Crear nueva entidad (CU-G01)
@@ -54,8 +67,9 @@ class BaseService(ABC):
             }
         except Exception as e:
             logger.error(f"Error en crear: {e}")
-            return {"exito": False, "mensaje": str(e), "id": None}
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales.", "id": None}
     
+    @safe_service
     def consultar(self, id_valor):
         """Caso de uso: Consultar entidad por ID"""
         try:
@@ -64,8 +78,9 @@ class BaseService(ABC):
                 return {"exito": True, "data": entidad.to_dict()}
             return {"exito": False, "mensaje": "No encontrado"}
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales."}
     
+    @safe_service
     def listar(self, limite=None, offset=None):
         """Caso de uso: Listar entidades (CU-G02)"""
         try:
@@ -76,8 +91,9 @@ class BaseService(ABC):
                 "total": len(entidades)
             }
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales."}
     
+    @safe_service
     def actualizar(self, id_valor, datos: dict):
         """
         Caso de uso: Actualizar entidad (CU-G03)
@@ -104,8 +120,9 @@ class BaseService(ABC):
                 return {"exito": True, "mensaje": "Actualización exitosa"}
             return {"exito": False, "mensaje": "No se pudo actualizar"}
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales."}
     
+    @safe_service
     def eliminar(self, id_valor, fisico=False):
         """
         Caso de uso: Eliminar/Desactivar entidad (CU-G04)
@@ -137,8 +154,9 @@ class BaseService(ABC):
                 return {"exito": True, "mensaje": f"Eliminación {tipo} exitosa"}
             return {"exito": False, "mensaje": "No se pudo eliminar"}
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales."}
     
+    @safe_service
     def buscar(self, criterio, valor):
         """Caso de uso: Buscar entidad (CU-G05)"""
         try:
@@ -149,7 +167,7 @@ class BaseService(ABC):
                 "total": len(resultados)
             }
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales."}
     
     # Métodos abstractos para implementar en subclases
     def _verificar_duplicados(self, datos):

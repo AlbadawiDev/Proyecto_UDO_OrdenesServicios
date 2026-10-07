@@ -1,4 +1,5 @@
 """Utilidades para parseo seguro de valores de formularios."""
+import math
 
 
 def parse_int(value, field_name, required=False, minimum=None, default=None):
@@ -28,6 +29,9 @@ def parse_float(value, field_name, required=False, minimum=None, default=None):
         parsed = float(value)
     except (TypeError, ValueError) as exc:
         raise ValueError(f"El campo '{field_name}' debe ser un número válido") from exc
+
+    if not math.isfinite(parsed):
+        raise ValueError(f"El campo '{field_name}' debe ser un número finito")
 
     if minimum is not None and parsed < minimum:
         raise ValueError(f"El campo '{field_name}' debe ser mayor o igual a {minimum}")

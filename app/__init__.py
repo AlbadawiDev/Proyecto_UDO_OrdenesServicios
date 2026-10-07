@@ -5,9 +5,18 @@ Inicialización de la aplicación Flask
 from flask import Flask
 from app.config import Config
 
-def create_app():
+def create_app(config=None):
     app = Flask(__name__)
     app.config.from_object(Config)
+    if config:
+        app.config.update(config)
+    from app.security import register_security
+    register_security(app)
+    from app.dao.conexion import db
+
+    @app.teardown_appcontext
+    def close_connection(exception=None):
+        db.cerrar()
     
     # Registrar blueprints (controladores)
     from app.controllers.main_controller import main_bp

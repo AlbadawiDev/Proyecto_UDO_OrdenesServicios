@@ -26,7 +26,7 @@ class BaseDAO(ABC):
         pass
 
     def _validar_identificador(self, identificador):
-        if not _IDENTIFIER_PATTERN.match(identificador):
+        if not isinstance(identificador, str) or not _IDENTIFIER_PATTERN.fullmatch(identificador):
             raise ValueError(f"Identificador SQL inválido: {identificador}")
 
     def _execute_fetch(self, query, params=(), fetch_one=False):
@@ -50,6 +50,10 @@ class BaseDAO(ABC):
                 cursor.close()
 
     def insertar(self, datos: dict) -> int:
+        self._validar_identificador(self.tabla)
+        self._validar_identificador(self.primary_key)
+        for columna in datos:
+            self._validar_identificador(columna)
         columnas = list(datos.keys())
         valores = list(datos.values())
         placeholders = ", ".join(["%s"] * len(valores))
@@ -103,6 +107,10 @@ class BaseDAO(ABC):
     def actualizar(self, id_valor, datos: dict):
         if not datos:
             return False
+        self._validar_identificador(self.tabla)
+        self._validar_identificador(self.primary_key)
+        for columna in datos:
+            self._validar_identificador(columna)
         campos = [f"{k} = %s" for k in datos.keys()]
         valores = list(datos.values())
         valores.append(id_valor)

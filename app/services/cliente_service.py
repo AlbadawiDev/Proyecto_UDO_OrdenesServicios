@@ -38,7 +38,7 @@ class ClienteService(BaseService):
                 return {"exito": True, "data": cliente.to_dict()}
             return {"exito": False, "mensaje": "Cliente no encontrado"}
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales."}
     
     def buscar_por_nombre(self, nombre):
         try:
@@ -49,6 +49,6 @@ class ClienteService(BaseService):
                 "total": len(clientes)
             }
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales."}
 
 cliente_service = ClienteService()

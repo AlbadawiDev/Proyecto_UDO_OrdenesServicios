@@ -74,7 +74,7 @@ class TecnicoService(BaseService):
                 return {"exito": True, "mensaje": "Actualización exitosa"}
             return {"exito": False, "mensaje": "No se pudo actualizar"}
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales."}
 
 
 tecnico_service = TecnicoService()
