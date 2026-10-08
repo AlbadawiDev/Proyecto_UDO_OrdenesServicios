@@ -4,6 +4,7 @@ Capa de Persistencia - Módulo de Conexión
 Gestiona la conexión a PostgreSQL usando psycopg2
 """
 import logging
+import threading
 
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -20,8 +21,17 @@ class ConexionDB:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
+            cls._instance._local = threading.local()
             cls._instance._connection = None
         return cls._instance
+
+    @property
+    def _connection(self):
+        return getattr(self._local, 'connection', None)
+
+    @_connection.setter
+    def _connection(self, value):
+        self._local.connection = value
 
     def _resolver_encoding_inicial(self, conn):
         encoding = (Config.DB_CLIENT_ENCODING or 'UTF8').upper()
@@ -37,12 +47,15 @@ class ConexionDB:
     def conectar(self):
         try:
             if self._connection is None or self._connection.closed:
+                if not Config.DB_PASSWORD:
+                    raise RuntimeError('Configura DB_PASSWORD para una base local de desarrollo.')
                 self._connection = psycopg2.connect(
                     host=Config.DB_HOST,
                     port=Config.DB_PORT,
                     database=Config.DB_NAME,
                     user=Config.DB_USER,
-                    password=Config.DB_PASSWORD
+                    password=Config.DB_PASSWORD,
+                    connect_timeout=5
                 )
                 self._connection.autocommit = False
                 encoding = self._resolver_encoding_inicial(self._connection)
@@ -62,6 +75,7 @@ class ConexionDB:
         if self._connection and not self._connection.closed:
             self._connection.close()
             logger.info("Conexión cerrada")
+        self._connection = None
 
     def get_cursor(self, dictionary=True):
         conn = self.conectar()

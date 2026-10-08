@@ -75,6 +75,7 @@
                             <form action="{{ url_for('prioridad.eliminar_prioridad', id=prioridad.id_prioridad) }}" 
                                   method="POST" style="display: inline;"
                                   onsubmit="return confirm('¿Estás seguro de eliminar {{ prioridad.nombre_prioridad }}?');">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
                                 <button type="submit" class="btn btn-danger btn-sm">🗑️ Eliminar</button>
                             </form>
                         </div>

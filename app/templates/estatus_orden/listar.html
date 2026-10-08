@@ -75,6 +75,7 @@
                             <form action="{{ url_for('estatus_orden.eliminar_estatus', id=estatus.id_estatus) }}" 
                                   method="POST" style="display: inline;"
                                   onsubmit="return confirm('¿Estás seguro de eliminar {{ estatus.nombre_estatus }}?');">
+        <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
                                 <button type="submit" class="btn btn-danger btn-sm">🗑️ Eliminar</button>
                             </form>
                         </div>

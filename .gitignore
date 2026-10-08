@@ -1,7 +1,11 @@
 venv/
+.venv/
+.pytest_cache/
+.local-db/
 __pycache__/
 *.pyc
-.env
+.env*
+!.env.example
 docs/diagramas/*.pdf
 docs/diagramas/*.png
 docs/diagramas/*.jpeg

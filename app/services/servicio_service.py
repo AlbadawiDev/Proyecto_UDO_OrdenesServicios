@@ -37,7 +37,7 @@ class ServicioService(BaseService):
                 "total": len(servicios)
             }
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales."}
     
     def listar_por_rango_costo(self, min_costo, max_costo):
         try:
@@ -47,6 +47,6 @@ class ServicioService(BaseService):
                 "data": [s.to_dict() for s in servicios]
             }
         except Exception as e:
-            return {"exito": False, "mensaje": str(e)}
+            return {"exito": False, "mensaje": "No se pudo completar la operación. Revisa la configuración y los registros locales."}
 
 servicio_service = ServicioService()
