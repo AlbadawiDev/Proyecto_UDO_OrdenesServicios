@@ -123,6 +123,21 @@ def test_cyclic_cause_terminates_without_retry(monkeypatch):
     assert db.cursors[0].closed
 
 
+@pytest.mark.parametrize('link', ['__cause__', '__context__'])
+def test_sql_wrapper_with_decoding_text_does_not_retry(monkeypatch, link):
+    error = wrapped('message')
+    setattr(error, link, psycopg2.ProgrammingError('synthetic underlying SQL failure'))
+    db = DB([error])
+    monkeypatch.setattr('app.dao.base_dao.db', db)
+    with pytest.raises(RuntimeError) as caught:
+        DAO().listar_todos()
+    assert caught.value is error
+    assert len(db.queries) == 1
+    assert not db.encoding_calls
+    assert db.rollback_calls == 0
+    assert db.cursors[0].closed
+
+
 def test_retry_failure_rolls_back_and_restores(monkeypatch):
     db = DB([wrapped('cause'), psycopg2.ProgrammingError('synthetic retry failure')])
     monkeypatch.setattr('app.dao.base_dao.db', db)

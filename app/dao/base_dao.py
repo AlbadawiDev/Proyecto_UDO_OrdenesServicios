@@ -34,6 +34,7 @@ class BaseDAO(ABC):
     def _es_error_encoding(exc):
         """Recognize decoding wrappers without retrying ordinary SQL failures."""
         pending, visited = [exc], set()
+        decoding_message, sql_error = False, False
         while pending:
             current = pending.pop()
             if current is None or id(current) in visited:
@@ -41,14 +42,16 @@ class BaseDAO(ABC):
             visited.add(id(current))
             if isinstance(current, UnicodeDecodeError):
                 return True
-            if not isinstance(current, psycopg2.Error):
+            if isinstance(current, psycopg2.Error):
+                sql_error = True
+            else:
                 message = str(current).lower()
                 if ("utf-8" in message and "codec can't decode byte" in message
                         and any(reason in message for reason in (
                             'invalid start byte', 'invalid continuation byte', 'unexpected end of data'))):
-                    return True
+                    decoding_message = True
             pending.extend((current.__cause__, current.__context__))
-        return False
+        return decoding_message and not sql_error
 
     def _execute_fetch(self, query, params=(), fetch_one=False):
         cursor = None
