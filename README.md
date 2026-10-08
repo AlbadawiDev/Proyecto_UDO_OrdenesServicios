@@ -42,3 +42,11 @@ Verificado el7 de octubre de2026 en Windows/Python3.14.3:20 pruebas correctas, i
 Esto no convierte la aplicación en un servicio público seguro: faltan login/roles, restricciones de acceso a registros, paginación general, registro de actividad y flujo de órdenes. Algunos DAOs específicos todavía manejan cursores directamente; el cierre de conexión por request limita su duración, pero conviene consolidar esa capa. El fallback LATIN1 conserva compatibilidad con bases heredadas; no repara una codificación incorrecta del servidor. La UI académica actual se conserva.
 
 No exponer datos personales o institucionales. Para una demo usar nombres ficticios, IDs de prueba y direcciones `example.invalid`. Las pruebas registran únicamente datos sintéticos y no borran registros originales.
+
+## Lecturas con errores de decoding envueltos
+
+Las lecturas DAO admiten un solo retry cuando un UnicodeDecodeError aparece dentro de `__cause__`/`__context__` o un wrapper no SQL conserva el mensaje explícito de decoding UTF-8. Los ciclos de excepciones terminan y los errores SQL normales no se reintentan por contener texto similar. No se reconecta ni se modifica el aislamiento por hilo.
+
+Antes del retry se cierra el cursor y se hace rollback, conforme al fallback existente. El encoding real de la conexión se restaura al finalizar, incluso si falla el segundo intento; si no se puede restaurar, se descarta esa conexión. El fallback no repara datos mal codificados y puede cambiar cómo se interpreta texto heredado. Conserva las validaciones SQL y los mensajes públicos genéricos.
+
+Validación de esta corrección: 30 pruebas offline aprobadas y dos PostgreSQL omitidas sin activación explícita. Incluye 12 casos nuevos de wrappers, causas/contextos, errores SQL, ciclos, cierre de recursos y restauración. No se repitió la integración PostgreSQL en esta etapa. Referencia de la API de encoding: [Psycopg connection](https://www.psycopg.org/docs/connection.html#connection.encoding).
