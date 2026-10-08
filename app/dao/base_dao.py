@@ -2,6 +2,7 @@
 from abc import ABC, abstractmethod
 import logging
 import re
+import psycopg2
 
 from app.config import Config
 from app.dao.conexion import db
@@ -29,25 +30,67 @@ class BaseDAO(ABC):
         if not isinstance(identificador, str) or not _IDENTIFIER_PATTERN.fullmatch(identificador):
             raise ValueError(f"Identificador SQL inválido: {identificador}")
 
+    @staticmethod
+    def _es_error_encoding(exc):
+        """Recognize decoding wrappers without retrying ordinary SQL failures."""
+        pending, visited = [exc], set()
+        decoding_message, sql_error = False, False
+        while pending:
+            current = pending.pop()
+            if current is None or id(current) in visited:
+                continue
+            visited.add(id(current))
+            if isinstance(current, UnicodeDecodeError):
+                return True
+            if isinstance(current, psycopg2.Error):
+                sql_error = True
+            else:
+                message = str(current).lower()
+                if ("utf-8" in message and "codec can't decode byte" in message
+                        and any(reason in message for reason in (
+                            'invalid start byte', 'invalid continuation byte', 'unexpected end of data'))):
+                    decoding_message = True
+            pending.extend((current.__cause__, current.__context__))
+        return decoding_message and not sql_error
+
     def _execute_fetch(self, query, params=(), fetch_one=False):
         cursor = None
+        restore_encoding = False
+        original_encoding = None
         try:
             cursor = db.get_cursor()
-            cursor.execute(query, params)
-            return cursor.fetchone() if fetch_one else cursor.fetchall()
-        except UnicodeDecodeError as exc:
-            fallback = Config.DB_FALLBACK_ENCODING
-            logger.info("UnicodeDecodeError leyendo filas (%s). Retry con %s", exc, fallback)
-            db.rollback()
-            db.set_client_encoding(fallback)
-            if cursor:
+            original_encoding = db.get_client_encoding()
+            try:
+                cursor.execute(query, params)
+                return cursor.fetchone() if fetch_one else cursor.fetchall()
+            except Exception as exc:
+                fallback = Config.DB_FALLBACK_ENCODING
+                if not self._es_error_encoding(exc) or fallback.upper() == original_encoding.upper():
+                    raise
+                logger.info("Error de decoding en lectura; un retry con %s", fallback)
+                db.rollback()
                 cursor.close()
-            cursor = db.get_cursor()
-            cursor.execute(query, params)
-            return cursor.fetchone() if fetch_one else cursor.fetchall()
+                cursor = None
+                restore_encoding = True
+                db.set_client_encoding(fallback)
+                try:
+                    cursor = db.get_cursor()
+                    cursor.execute(query, params)
+                    return cursor.fetchone() if fetch_one else cursor.fetchall()
+                except Exception:
+                    db.rollback()
+                    raise
         finally:
-            if cursor:
-                cursor.close()
+            try:
+                if cursor:
+                    cursor.close()
+            finally:
+                if restore_encoding:
+                    try:
+                        db.set_client_encoding(original_encoding)
+                    except Exception:
+                        db.cerrar()
+                        raise
 
     def insertar(self, datos: dict) -> int:
         self._validar_identificador(self.tabla)

@@ -71,6 +71,9 @@ class ConexionDB:
         conn.set_client_encoding(encoding)
         logger.warning("client_encoding actualizado dinámicamente a %s", encoding)
 
+    def get_client_encoding(self):
+        return self.conectar().encoding
+
     def cerrar(self):
         if self._connection and not self._connection.closed:
             self._connection.close()
